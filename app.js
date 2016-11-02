@@ -7,7 +7,6 @@ var express  = require("express");
 var app  =  express();
 
 
-
 //由于客户端返回的都是复杂的页面, 所以string无法满足我们的需求, 需要后端的逻辑和页面的表现分离, 前后端分离,这时候就需要用到模板
 //加载模板处理模块
 var swig = require("swig");
@@ -17,6 +16,7 @@ var swig = require("swig");
 //第一个参数: 模板引擎的名称, 同时也是模板文件的后缀, 也可以是.tpl
 //第二个参数: 表示用户解析处理模板内容的方法
 app.engine("html",swig.renderFile);
+
 
 //设置模板文件存放的目录,第一个参数必须是views, 第二个参数是目录
 app.set("views","./views");
@@ -39,9 +39,9 @@ app.use("/public",express.static(__dirname+'/public'))
 
 //虽然解决了静态文件的处理, 但是应用中还会存在许多的动态请求, 如果全放在这一个文件中必定杂乱无章, 所以需要分模块加载
 //这时候就需要用到路由(router)模块
-app.use("/admin",require("./router/admin"));
-
-
+app.use("/admin",require("./routers/admin"));
+app.use("/api",require("./routers/api"));
+app.use("/users",require("./routers/users"));
 
 //路由绑定
 //通过app.get()或app.post()等方法可以把一个url路径和一个或N个函数进行绑定
@@ -52,11 +52,26 @@ app.get("/",function(req,res,next){
 
     //通过res.send(string)发送内容至客户端
     //res.send("hello world");
-
-    res.render("index.html");
+	res.render("index.html");
 })
 
 
+//加载数据库模块
+var mongoose = require("mongoose");
 
-//监听端口
-app.listen(8081);
+
+//对数据库进行连接, 连接之前要确保数据库的开启
+//开启mongodb  需要https://www.mongodb.com 先下载应用, 然后在目录包里找到  bin目录下的mongod 为mongdb服务端,
+//在mac下命令:  ./mongod --dbpath  /Users/biaozhu/Documents/Blog_node/db (指定的数据库存放的地址_,  --port 27017(端口)
+//连接数据库
+mongoose.connect("mongodb://127.0.0.1:27017",function(err){
+	if(err){
+		console.log("数据库连接失败");
+	}else{
+		console.log("数据库连接成功");
+		app.listen(8081);
+		//连接成功以后监听端口
+		
+	};
+});
+
