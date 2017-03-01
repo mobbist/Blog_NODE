@@ -23,6 +23,8 @@ app.set("views","./views");
 
 //注册所使用的模板引擎, 第一个参数必须是view engine, 第二个参数和app.engine所定义的模板引擎的名称(第一个参数)是一致的
 app.set("view engine","html");
+
+
 //之后在返回的时候, 使用 res对象中的render方法,第一个参数表示模板的文件, 相对于views目录,第二个参数:传递给模板使用的数据
 //res.render("index.html");
 
@@ -30,7 +32,7 @@ app.set("view engine","html");
 swig.setDefaults({cache:false});
 
 
-//在实际开发中, 页面中会有许多的css js img等静态文件需要请求, 这些也都是路由,需要去监听.但是这样写的话则太啰嗦, 
+//在实际开发中, 页面中会有许多的css js img等静态文件需要请求, 这些也都是路由,需要去监听.但是这样写的话则太啰嗦,
 //由于静态文件只要原本的返回给前端就可以, 不需要做什么额外的操作, 所以可以采用设置静态文件托管
 //当用户请求的路径中以public开始的, 则调用后面的形式处理, 后面就是一个函数,指定到这个目录下
 app.use("/public",express.static(__dirname+'/public'))
@@ -61,17 +63,29 @@ var mongoose = require("mongoose");
 
 
 //对数据库进行连接, 连接之前要确保数据库的开启
-//开启mongodb  需要https://www.mongodb.com 先下载应用, 然后在目录包里找到  bin目录下的mongod 为mongdb服务端,
-//在mac下命令:  ./mongod --dbpath  /Users/biaozhu/Documents/Blog_node/db (指定的数据库存放的地址_,  --port 27017(端口)
+//开启mongodb  需要https://www.mongodb.com 先下载应用, 注意安装的时候要记得先自定义(custom)安装才可以指定安装路径
+//然后在目录包里找到  bin目录下的mongod 为mongdb服务端, 使用终端进入到该bin目录下,执行mongod,
+//注意下载下来的这个是mongodb的应用程序, 而执行该mongod文件则才是创建mongdb服务端, 通常路径指向该项目下的db目录
+//在Windows下命令:  mongod   --dbpath=D://User/Documents/db/(指定当前的数据库存放的路径)    --port 27017 (指定端口)
+//在mac下命令:  ./mongod --dbpath  /Users/biaozhu/Documents/Blog_node/db (指定的数据库存放的地址_),  --port 27017(指定端口
+
+//当命令行中出现 waiting for connections on port 27017 等待来自端口27017的连接,说明成功了
+//这时可以进行对数据库的连接, 方法有很多种, 可以用mongo.exe mangodb客户端来连接, 也可以使用可视化工具来连接 robomongo
+
+
 //连接数据库
 mongoose.connect("mongodb://127.0.0.1:27017",function(err){
 	if(err){
+		console.log(err);
 		console.log("数据库连接失败");
 	}else{
 		console.log("数据库连接成功");
 		app.listen(8081);
 		//连接成功以后监听端口
-		
+
 	};
 });
 
+//用户发送请求 -> url -> 解析路由 -> 找到匹配的规则 -> 执行指定的绑定函数  ->返回对应内容给用户
+//在解析路由时, 如果是public开头的, 则是静态文件   -> 直接读取指定的目录下的文件  -> 返回给用户
+//在解析路由时, 非public开头, 就是动态 -> 处理业务逻辑  ->加载模板 -> 返回给用户
