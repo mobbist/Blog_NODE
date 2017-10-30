@@ -6,6 +6,8 @@ var express  = require("express");
 //创建app应用,相当于 nodeJS的 Http.creatServer()服务端对象
 var app  =  express();
 
+//body-parser  处理前端post提交的数据, 使用之前需要配置一下
+var bodyParser = require("body-parser");
 
 //由于客户端返回的都是复杂的页面, 所以string无法满足我们的需求, 需要后端的逻辑和页面的表现分离, 前后端分离,这时候就需要用到模板
 //加载模板处理模块
@@ -23,19 +25,23 @@ app.set("views","./views");
 
 //注册所使用的模板引擎, 第一个参数必须是view engine, 第二个参数和app.engine所定义的模板引擎的名称(第一个参数)是一致的
 app.set("view engine","html");
-
-
 //之后在返回的时候, 使用 res对象中的render方法,第一个参数表示模板的文件, 相对于views目录,第二个参数:传递给模板使用的数据
 //res.render("index.html");
 
 //在开发过程中, 需要取消模板缓存,每次改变模板不需要再去重启服务
 swig.setDefaults({cache:false});
 
+//使用中间件来设置bodyParser, 接受前端传参的参数, 然后会在req对象身上增加一个body属性, 内容就是post提交过来的数据
+app.use(bodyParser.urlencoded({extended:true}));
+
 
 //在实际开发中, 页面中会有许多的css js img等静态文件需要请求, 这些也都是路由,需要去监听.但是这样写的话则太啰嗦,
 //由于静态文件只要原本的返回给前端就可以, 不需要做什么额外的操作, 所以可以采用设置静态文件托管
 //当用户请求的路径中以public开始的, 则调用后面的形式处理, 后面就是一个函数,指定到这个目录下
 app.use("/public",express.static(__dirname+'/public'))
+
+
+
 
 
 
@@ -72,7 +78,8 @@ var mongoose = require("mongoose");
 //当命令行中出现 waiting for connections on port 27017 等待来自端口27017的连接,说明成功了
 //这时可以进行对数据库的连接, 方法有很多种, 可以用mongo.exe mangodb客户端来连接, 也可以使用可视化工具来连接 robomongo
 
-
+//添加这句,mongoose在进行操作数据库时,就不会出现 DeprecationWarning: Mongoose: mpromise (mongoose's default promise library) is deprecated, plug in your own promise library instead: http://mongoosejs.com/docs/promises.html
+mongoose.Promise  = require("bluebird");
 //连接数据库
 mongoose.connect("mongodb://127.0.0.1:27017",function(err){
 	if(err){

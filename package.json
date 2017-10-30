@@ -12,7 +12,9 @@
     "express": "^4.14.0"
   },
   "dependencies": {
-    "mongoose": "^4.6.5",
+    "bluebird": "^3.4.7",
+    "body-parser": "^1.17.0",
+    "mongoose": "^4.6.8",
     "swig": "^1.4.2"
   }
 }

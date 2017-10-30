@@ -5,7 +5,7 @@
 var mongoose = require("mongoose");
 
 //用户表的结构
-module.exports = new  mongoose.schema({
+module.exports = new mongoose.Schema({
 	//每个属性就是一个字段
 	username: String,
 	password: String
